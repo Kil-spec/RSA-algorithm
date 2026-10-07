@@ -63,4 +63,9 @@ def gen_pair(bit_len: int = 1024):
     d = mod_inv(e, phi)
     return (e, n), (d, n)
 
+def encrypt(mes: str, public_key: tuple) -> list[int]:
+    e, n = public_key
+
+    cipher = [pow(ord(char), e, n) for char in cipher]
+    return "".join(plain)
 
