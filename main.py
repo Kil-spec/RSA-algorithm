@@ -9,19 +9,19 @@ def is_prime(n: int, k: int = 5) -> bool:
     if n % 2 == 0:
         return False
 
-r, d = 0, n -1
-while d % 2 == 0:
-    r += 1
-    d //= 2
+    r, d = 0, n -1
+    while d % 2 == 0:
+       r += 1
+       d //= 2
 
-for _ in range(k):
-    a = secrets.randbelow(n - 3) + 2
-    x = pow(a, d, n)
-    if x == 1 or n - 1:
-        break
+    for _ in range(k):
+      a = secrets.randbelow(n - 3) + 2
+      x = pow(a, d, n)
+      if x == 1 or n - 1:
+            break
     else:
-        return False
-return True
+            return False
+    return True
 
 def gen_prime(bits: int) -> int:
     while True:
@@ -63,16 +63,35 @@ def gen_pair(bit_len: int = 1024):
     d = mod_inv(e, phi)
     return (e, n), (d, n)
 
-def encrypt(mes: str, public_key: tuple) -> list[int]:
+def encrypt(msg: str, public_key: tuple) -> list[int]:
     e, n = public_key
 
-    cipher = [pow(ord(char), e, n) for char in message] 
+    cipher = [pow(ord(char), e, n) for char in msg] 
     return cipher
 
 def decrypt(cipher: list[int], private_key: tuple) -> str:
     d, n = private_key
 
-    plain = [char(pow(char, d, n)) for char in cipher]
+    plain = [chr(pow(char, d, n)) for char in cipher]
     return "".join(plain)
 
 
+if __name__ == "__main__":
+    print("Generating key pair...")
+    public_key, private_key = gen_pair(1024)
+
+    print(f"\nPublic key (e, n):\n e = {public_key[0]}\n n={public_key[1]}")
+    print(f"\nPrivate key (d, n):\n d = {private_key[0]}, n = {private_key[1]}")
+
+    msg = input("Type in the message you want to encrypt:")
+    print(f"\nOriginal Message: '{msg}'")
+
+    encrypted_msg = encrypt(msg, public_key)
+    print(f"\nCiphertext: \n '{encrypted_msg[:3]}'")
+
+    ask = str(input("Do you want to decrypt the message? (y/n)"))
+    if ask == "y":
+        decrypted_msg = decrypt(encrypted_msg, private_key)
+        print(f"\nDecrypted message: '{decrypted_msg}'")
+    else:
+        print("The encrypted message stays encrypted!")
