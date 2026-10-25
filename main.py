@@ -15,51 +15,53 @@ def is_prime(n: int, k: int = 5) -> bool:
        d //= 2
 
     for _ in range(k):
-      a = secrets.randbelow(n - 3) + 2
-      x = pow(a, d, n)
-      if x == 1 or n - 1:
-            break
-    else:
+        a = secrets.randbelow(n - 3) + 2
+        x = pow(a, d, n)
+        if x == 1 or n - 1:
+            continue
+        for _ in range(r - 1):
+            x = pow(x, 2, n)
+            if x == n - 1:
+                break
+        else:
             return False
+
     return True
 
 def gen_prime(bits: int) -> int:
     while True:
-        can = (1 << (bits-1)) | secrets.randbits(bits - 1) | 1
+        can = (3 << (bits - 2)) | secrets.randbits(bits - 2) | 1
         if is_prime(can):
             return can
 
 def ext_gcd(a: int, b: int):
     if a == 0:
         return b, 0, 1
-    gcd, x1, y1, = ext_gcd(b % a, a)
-    x = y1 -(b // a) * x1
+    g, x1, y1, = ext_gcd(b % a, a)
+    x = y1 - (b // a) * x1
     y = x1
-    return gcd, x, y1
+    return g, x, y
 
 def mod_inv(e: int, phi: int) -> int:
     gcd, x, _ = ext_gcd(e, phi)
     if gcd != 1:
-        raise ValueError("")
+        raise ValueError(f"{e} has no modular inverse")
     return x % phi
 
 def gen_pair(bit_len: int = 1024):
 #public key: e, n
 #private key: d, n
-    p = gen_prime(bit_len // 2)
-    q = gen_prime(bit_len // 2)
-    while p == q:
-        q = gen_prime(bit_len // 2)
-
-    n = p * q
-    phi = (p - 1) * (q - 1)
-
     e = 65537 #public standard
-    if math.gcd(e, phi) != 1:
-        e = 3
-        while math.gcd(e, phi) != 1:
-            e += 2
-        
+    while True:
+        p = gen_prime(bit_len // 2)
+        q = gen_prime(bit_len // 2)
+        if p == q:
+            continue
+        phi = (p - 1) * (q - 1)
+        if math.gcd(e, phi) == 1:
+            break
+
+    n = p * q      
     d = mod_inv(e, phi)
     return (e, n), (d, n)
 
@@ -94,4 +96,5 @@ if __name__ == "__main__":
         decrypted_msg = decrypt(encrypted_msg, private_key)
         print(f"\nDecrypted message: '{decrypted_msg}'")
     else:
-        print("The encrypted message stays encrypted!")
+        print("The message stays encrypted!")
+        
